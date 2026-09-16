@@ -1,8 +1,8 @@
 #include <stdio.h>
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -13,6 +13,14 @@
 #define DEFAULT_DSIP "192.168.1.1"
 #define OUTSIDE_DSIP "193.136.138.142"
 #define DEFAULT_DSPORT "59000"
+
+
+//REQUESTS
+//#define
+
+//ACKNOWLEDGMENTS
+
+//ERRORS
 
 void sendUDP(int fd, const void* buf, size_t n, int flags, struct addrinfo* res) {
     size_t s = sendto(fd, buf, n, flags, res->ai_addr, res->ai_addrlen);
@@ -31,17 +39,73 @@ void recvUDP(int fd, void* buf, size_t n, int flags, struct sockaddr_in* addr) {
     }
 }
 
-/*
-void await_command() {
+//NOT DONE
+int validPORT(int PORT) {
 
-    char* command;
-    switch (command):
-        case "login":
-        case "logout":
-        case "unregister":
-        case "exit":
 }
-*/
+
+int validUID(char* UID) {
+    //Check length
+    if (len(UID) != 6) {
+        return 0;
+    }
+    //Check if all char are digits
+    for (int i = 0; 6;i++) {
+        if (!is_digit(UID[i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int validIP(char* IP) {
+    //Check length
+    if (len(IP) != 8) {
+        return 0;
+    }
+    //Check if all char are letters or digits
+    for (int i = 0; 8;i++) {
+        if (!isalnum(IP[i])) {
+            return 0;
+        }
+    }
+}
+
+
+void read_command(char* command) {
+
+    char c[32];
+    sscanf(command, "%s", &c);
+
+    switch (c[0]) {
+        case 'l':
+            switch(c[3]) {
+                case 'i':login(command); break;
+                case 'o':break;
+                case 't':break;
+            }
+            break;
+        case 'u': unregister(); break;
+        case 'e': exit(); break;
+    }
+}
+
+void login() {
+
+}
+
+void logout() {
+
+}
+
+void unregister() {
+
+}
+
+void exit() {
+
+}
+
 
 int main(int argc, char* argv[]) {
     int opt;
