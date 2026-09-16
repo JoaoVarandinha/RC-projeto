@@ -14,6 +14,23 @@
 #define OUTSIDE_DSIP "193.136.138.142"
 #define DEFAULT_DSPORT "59000"
 
+void sendUDP(int fd, const void* buf, size_t n, int flags, struct addrinfo* res) {
+    size_t s = sendto(fd, buf, n, flags, res->ai_addr, res->ai_addrlen);
+    if (s == -1) {
+        perror("SendUDP failed");
+        exit(1);
+    }
+}
+
+void recvUDP(int fd, void* buf, size_t n, int flags, struct sockaddr_in* addr) {
+    int addrlen = sizeof(addr);
+    size_t s = recvfrom(fd, buf, n, flags, (struct sockaddr*) &addr, &addrlen);
+        if (s == -1) {
+        perror("RecvUDP failed");
+        exit(1);
+    }
+}
+
 int main(int argc, char* argv[]) {
     int opt;
     char *peerport = NULL;
@@ -30,7 +47,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (peerport == NULL) {
-        //give error
+        perror("No peerport given");
+        exit(1);
     }
 
 
@@ -46,8 +64,23 @@ int main(int argc, char* argv[]) {
     socklen_t addrlen;
     struct addrinfo hints, *res;
     struct sockaddr_in addr;
-    char buffer[128];
+    char buf[128];
 
+    fd = socket(AF_INET, SOCK_DGRAM, 0); // UDP socket
+    if (fd == -1) exit(1);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;      // IPv4
+    hints.ai_socktype = SOCK_DGRAM; // UDP socket
+
+    errcode = getaddrinfo(dsip, dsport, &hints, &res);
+    if (errcode != 0) exit(1);
+
+
+
+
+    freeaddrinfo(res);
+    close(fd);
     return 0;
 }
 
