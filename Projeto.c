@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-
+#define DEFAULT_HOSTNAME "tejo.tecnico.ulisboa.pt" //Delete if uneeded
 #define DEFAULT_DSIP "192.168.1.1"
 #define OUTSIDE_DSIP "193.136.138.142"
 #define DEFAULT_DSPORT "59000"
@@ -30,6 +30,18 @@ void recvUDP(int fd, void* buf, size_t n, int flags, struct sockaddr_in* addr) {
         exit(1);
     }
 }
+
+/*
+void await_command() {
+
+    char* command;
+    switch (command):
+        case "login":
+        case "logout":
+        case "unregister":
+        case "exit":
+}
+*/
 
 int main(int argc, char* argv[]) {
     int opt;
