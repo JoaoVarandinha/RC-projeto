@@ -15,10 +15,15 @@
 #define DEFAULT_DSPORT "59000"
 
 
-//REQUESTS
-//#define
+//CLIENT REQUESTS
+#define REC_LOGIN "LIN"
+#define REC_LOGOUT "LOU"
+#define REC_UNREGISTER "UNR"
 
-//ACKNOWLEDGMENTS
+//SERVER ANSWERS
+#define ANS_LOGIN "RLI"
+#define ANS_LOGOUT "RLO"
+#define ANS_UNREGISTER "RUR"
 
 //ERRORS
 
@@ -72,7 +77,7 @@ int validIP(char* IP) {
 }
 
 
-void read_command(char* command) {
+void process_command(int fd, char* command) {
 
     char c[32];
     sscanf(command, "%s", &c);
@@ -80,25 +85,25 @@ void read_command(char* command) {
     switch (c[0]) {
         case 'l':
             switch(c[3]) {
-                case 'i':login(command); break;
-                case 'o':break;
-                case 't':break;
+                case 'i':login(fd, command); break;
+                case 'o':logout(fd); break;
+                //case 't':break;
             }
             break;
-        case 'u': unregister(); break;
+        case 'u': unregister(fd); break;
         case 'e': exit(); break;
     }
 }
 
-void login() {
+void login(int fd, char* command) {
 
 }
 
-void logout() {
+void logout(int fd) {
 
 }
 
-void unregister() {
+void unregister(int fd) {
 
 }
 
@@ -126,6 +131,14 @@ int main(int argc, char* argv[]) {
         perror("No peerport given");
         exit(1);
     }
+    //NOT DONE
+    if (!validIP(dsip)) {
+
+    }
+    //NOT DONE
+    if (!validPORT(dsport)) {
+
+    }
 
 
     //Parameter test (DELETE LATER)
@@ -152,7 +165,11 @@ int main(int argc, char* argv[]) {
     errcode = getaddrinfo(dsip, dsport, &hints, &res);
     if (errcode != 0) exit(1);
 
-
+    while (1) {
+        if (fgets(buf, sizeof(buf), stdin) != NULL) {
+            process_command(fd, buf);
+        }
+    }
 
 
     freeaddrinfo(res);
