@@ -1,7 +1,6 @@
 #include "commands.h"
 
 void process_command(int fd, char* command) {
-
     char c[32];
     sscanf(command, "%s", &c);
 

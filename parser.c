@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "commands.h"
 #include "client_main.h"
 
 #include <stdio.h>
@@ -80,9 +81,13 @@ int setup_client(int argc, char* argv[]) {
         }
     }
 
+    //NOT DONE
     if (info.peerport == NULL) {
-        perror("No peerport given");
-        exit(1);
+        
+    }
+    //NOT DONE
+    if (!is_valid_PORT(info.peerport)) {
+
     }
     //NOT DONE
     if (!validIP(info.dsip)) {
@@ -92,32 +97,8 @@ int setup_client(int argc, char* argv[]) {
     if (!validPORT(info.dsport)) {
 
     }
-
-
-    //Parameter test (DELETE LATER)
-    printf("Starting User application...\n");
-    printf("-> Peer Port (TCP): %s\n", info.peerport);
-    printf("-> Directory Server IP: %s\n", info.dsip);
-    printf("-> Directory Server Port (UDP): %s\n", info.dsport);
 }
 
-
-void process_command(int fd, char* command) {
-    char c[32];
-    sscanf(command, "%s", &c);
-
-    switch (c[0]) {
-        case 'l':
-            switch(c[3]) {
-                case 'i':login(fd, command); break;
-                case 'o':logout(fd); break;
-                //case 't':break;
-            }
-            break;
-        case 'u': unregister(fd); break;
-        case 'e': exit(1); break;
-    }
-}
 
 void read_commands(int fd, char*buf) {
     while (fgets(buf, sizeof(buf), stdin)) {
