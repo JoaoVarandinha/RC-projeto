@@ -20,6 +20,7 @@
 #define UNREGISTER_NOT_SIGNED_IN_MESSAGE "User not logged in.\n"
 #define UNREGISTER_NOT_REGISTERED_MESSAGE "Unknown user.\n"
 #define UNREGISTER_WRONG_PASSWORD_MESSAGE "Incorrect password.\n"
+#define UNREGISTER_NOT_LOGGED_OUT_MESSAGE "Must logout first.\n"
 
 //SETUP (CLI ARGUMENT) MESSAGES
 #define PEERPORT_MISSING_MESSAGE "Peerport is necessary.\n"

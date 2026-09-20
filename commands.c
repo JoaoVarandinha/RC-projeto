@@ -25,8 +25,8 @@ int process_command(connection_info cInfo, char* command) {
     }
 
     else if (strcmp(cmdToken, "exit") == 0){
-        if (isLoggedIn()) logout(cInfo);
-        return EXIT_CODE;
+        if (isLoggedIn()) printf(UNREGISTER_NOT_LOGGED_OUT_MESSAGE);
+        else return EXIT_CODE;
     }
 
     else {
