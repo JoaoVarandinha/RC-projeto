@@ -7,15 +7,15 @@
 #define DEFAULT_DSPORT "59000"
 
 struct {
-    char* UID;
-    char* password;
+    char UID[7];
+    char password[9];
 } typedef user_info;
 
 struct {
     char* peerport;
     char* dsip;
     char* dsport;
-    user_info user;
-} typedef client_info;
+    int sockfd;
+} typedef connection_info;
 
 #endif

@@ -3,8 +3,9 @@
 #include "client_main.h"
 
 
-void main(int argc, char* argv[]) {
-    setup_client(argc, argv);
-    connect_server();
-    read_commands();
+int main(int argc, char* argv[]) {
+    connection_info cInfo = setup_client(argc, argv);
+    connectUDP(&cInfo);
+    read_commands(cInfo);
+    return 0;
 }

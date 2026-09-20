@@ -1,14 +1,21 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-void process_command(int fd, char* command);
+#include "client_main.h"
+#include "api.h"
+#include "parser.h"
+#include <stdbool.h>
 
-void login(int fd, char* command);
+#define EXIT_CODE -1
 
-void logout(int fd);
+int process_command(connection_info cInfo, char* command);
 
-void unregister(int fd);
+void login(connection_info cInfo, char* UID, char* password);
 
-void exit();
+void logout(connection_info cInfo);
+
+void unregister(connection_info cInfo);
+
+bool isLoggedIn();
 
 #endif
