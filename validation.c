@@ -80,7 +80,7 @@ bool is_valid_filename(char* filename){
     if (filename == NULL) return false;
 
     size_t len = strlen(filename);
-    if (len < 4 || len > 24) return false;
+    if (len < 5 || len > 24) return false;
 
     //Check the dot is in the correct pos
     if (filename[len-4]!= '.') return false;
@@ -103,7 +103,7 @@ bool is_valid_label(char* label){
     if (label == NULL) return false;
 
     size_t len = strlen(label);
-    if (len < 4 || len > 20) return false;
+    if (len < 1 || len > 20) return false;
 
     for (int i = 0; i < len; i++){
         char c = label[i];
