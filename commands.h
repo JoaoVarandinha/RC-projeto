@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #define EXIT_CODE -1
+#define MAX_FSIZE 10000000
 
 int process_command(connection_info cInfo, char* command);
 
@@ -16,6 +17,8 @@ void logout(connection_info cInfo);
 
 void unregister(connection_info cInfo);
 
-bool isLoggedIn();
+void publish(connection_info cInfo, char* filename, char* label);
+
+
 
 #endif
