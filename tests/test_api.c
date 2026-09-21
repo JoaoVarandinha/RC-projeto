@@ -12,6 +12,7 @@
 //   gcc -Wall -o tests/test_api tests/test_api.c api.c && ./tests/test_api
 
 #include "../api.h"
+#include "../parser.h"
 
 #include <stdio.h>
 #include <stdlib.h>
