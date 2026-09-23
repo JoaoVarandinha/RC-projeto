@@ -51,7 +51,7 @@ void read_commands(connection_info cInfo){
     
     printf("Enter command: ");
     while (fgets(buf, sizeof(buf), stdin)){
-        if(process_command(cInfo, buf)==EXIT_CODE) break;
+        if (process_command(cInfo, buf)==EXIT_CODE) break;
         printf("\nEnter command: ");
     }
 }
