@@ -160,7 +160,7 @@ static int exchange(command_kind kind, const char* reply, char* requestOut, size
 
     close(requestPipe[0]);
     waitpid(pid, NULL, 0);
-    disconnectUDP();
+    disconnectUDP(cInfo.sockfd);
     close(dsSocket);
     return response;
 }
