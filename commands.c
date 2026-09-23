@@ -8,6 +8,11 @@
 
 user_info session;
 
+void clear_session() {
+    session.UID[0] = '\0';
+    session.password[0] = '\0';
+}
+
 int process_command(connection_info cInfo, char* command){
     char *cmdToken = strtok(command, " \n");
     if (cmdToken == NULL) return 0;
@@ -30,6 +35,11 @@ int process_command(connection_info cInfo, char* command){
         char* filename = strtok(NULL, " \n");
         char* label = strtok(NULL, " \n");
         publish(cInfo, filename, label);
+    }
+
+    else if (strcmp(cmdToken, "remove") == 0){
+        char* filename = strtok(NULL, " \n");
+        remove_file(cInfo, filename);
     }
 
     else if (strcmp(cmdToken, "exit") == 0){
@@ -69,13 +79,12 @@ void logout(connection_info cInfo){
         case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
         case(LOGOUT_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         case(LOGOUT_SUCCESS):printf(LOGOUT_SUCCESS_MESSAGE); break;
-        case(LOGOUT_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); return;
-        case(LOGOUT_NOT_REGISTERED):printf(LOGOUT_NOT_REGISTERED_MESSAGE); return;
-        case(LOGOUT_WRONG_PASSWORD):printf(LOGOUT_WRONG_PASSWORD_MESSAGE); return;
+        case(LOGOUT_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
+        case(LOGOUT_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
+        case(LOGOUT_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE);break;
     }
 
-    session.UID[0] = '\0';
-    session.password[0] = '\0';
+    clear_session();
 }
 
 void unregister(connection_info cInfo){
@@ -86,12 +95,11 @@ void unregister(connection_info cInfo){
         case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
         case(UNREGISTER_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         case(UNREGISTER_SUCCESS):printf(UNREGISTER_SUCCESS_MESSAGE); break;
-        case(UNREGISTER_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); return;
-        case(UNREGISTER_NOT_REGISTERED):printf(UNREGISTER_NOT_REGISTERED_MESSAGE); return;
-        case(UNREGISTER_WRONG_PASSWORD):printf(UNREGISTER_WRONG_PASSWORD_MESSAGE); return;
+        case(UNREGISTER_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
+        case(UNREGISTER_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
+        case(UNREGISTER_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
     }
-    session.UID[0] = '\0';
-    session.password[0] = '\0';
+    clear_session();
 }
 
 void publish(connection_info cInfo, char* filename, char* label){
@@ -115,12 +123,35 @@ void publish(connection_info cInfo, char* filename, char* label){
 
     int response = client_publish(cInfo, session, fInfo);
     switch(response){
-        case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); break;
-        case(PUBLISH_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); break;
-        case(PUBLISH_SUCCESS):printf(PUBLISH_SUCCESS_MESSAGE); break;
+        case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
+        case(PUBLISH_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PUBLISH_SUCCESS):printf(PUBLISH_SUCCESS_MESSAGE); return;
         case(PUBLISH_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
-        case(PUBLISH_NOT_REGISTERED):printf(PUBLISH_NOT_REGISTERED_MESSAGE); break;
-        case(PUBLISH_WRONG_PASSWORD):printf(PUBLISH_WRONG_PASSWORD_MESSAGE); break;
-        case(PUBLISH_FAILED):printf(PUBLISH_FAILED_MESSAGE); break;
+        case(PUBLISH_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
+        case(PUBLISH_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
+        case(PUBLISH_FAILED):printf(PUBLISH_FAILED_MESSAGE); return;
     }
+
+    clear_session();
+}
+
+void remove_file(connection_info cInfo, char* filename){
+    if (!is_valid_filename(filename)){
+        printf(INVALID_FILENAME_MESSAGE);
+        return;
+    }
+
+    int response = client_remove_file(cInfo, session, filename);
+    switch(response){
+        case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
+        case(REMOVE_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(REMOVE_FILE_SUCCESS):printf(REMOVE_FILE_SUCCESS_MESSAGE); return;
+        case(REMOVE_FILE_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
+        case(REMOVE_FILE_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
+        case(REMOVE_FILE_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
+        case(REMOVE_FILE_FAILED):printf(REMOVE_FILE_FAILED_MESSAGE); return;
+    }
+
+    clear_session();
+
 }

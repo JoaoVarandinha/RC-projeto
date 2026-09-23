@@ -19,6 +19,7 @@ void unregister(connection_info cInfo);
 
 void publish(connection_info cInfo, char* filename, char* label);
 
+void remove_file();
 
 
 #endif

@@ -3,6 +3,8 @@
 
 //GENERAL MESSAGES
 #define NOT_SIGNED_IN_MESSAGE "User not logged in.\n"
+#define NOT_REGISTERED_MESSAGE "Unknown user.\n"
+#define WRONG_PASSWORD_MESSAGE "Incorrect password. You've been logged out.\n"
 #define ALREADY_SIGNED_IN_MESSAGE "A user is logged in. Execute logout first.\n"
 #define DS_UNEXPECTED_REPLY_MESSAGE "Unexpected reply received from the DS. Request not completed.\n"
 #define DS_TIMEOUT_MESSAGE "No reply received from the DS. Request not completed.\n"
@@ -14,20 +16,18 @@
 
 //LOGOUT MESSAGES
 #define LOGOUT_SUCCESS_MESSAGE "Successful logout.\n"
-#define LOGOUT_NOT_REGISTERED_MESSAGE "Unknown user.\n"
-#define LOGOUT_WRONG_PASSWORD_MESSAGE "Incorrect password.\n"
 
 //UNREGISTER MESSAGES
 #define UNREGISTER_SUCCESS_MESSAGE "Successful unregister.\n"
-#define UNREGISTER_NOT_REGISTERED_MESSAGE "Unknown user.\n"
-#define UNREGISTER_WRONG_PASSWORD_MESSAGE "Incorrect password.\n"
 #define UNREGISTER_NOT_LOGGED_OUT_MESSAGE "Must logout first.\n"
 
 //PUBLISH MESSAGES
 #define PUBLISH_SUCCESS_MESSAGE "Successful publication.\n"
 #define PUBLISH_FAILED_MESSAGE "Unsuccessful publication.\n"
-#define PUBLISH_NOT_REGISTERED_MESSAGE "Unknown user.\n"
-#define PUBLISH_WRONG_PASSWORD_MESSAGE "Incorrect password.\n"
+
+//REMOVE MESSAGES
+#define REMOVE_FILE_SUCCESS_MESSAGE "Successful file removal.\n"
+#define REMOVE_FILE_FAILED_MESSAGE "Resource not found.\n"
 
 //SETUP (CLI ARGUMENT) MESSAGES
 #define PEERPORT_MISSING_MESSAGE "Peerport is necessary.\n"

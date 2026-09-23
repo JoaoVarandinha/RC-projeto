@@ -41,17 +41,27 @@
 #define PUBLISH_WRONG_PASSWORD 3
 #define PUBLISH_FAILED 4
 
+//REMOVE CODES
+#define REMOVE_FILE_ERROR -1
+#define REMOVE_FILE_SUCCESS 0
+#define REMOVE_FILE_NOT_SIGNED_IN 1
+#define REMOVE_FILE_NOT_REGISTERED 2
+#define REMOVE_FILE_WRONG_PASSWORD 3
+#define REMOVE_FILE_FAILED 4
+
 //CLIENT REQUESTS
 #define REQ_LOGIN "LIN"
 #define REQ_LOGOUT "LOU"
 #define REQ_UNREGISTER "UNR"
 #define REQ_PUBLISH "PUB"
+#define REQ_REMOVE_FILE "REM"
 
 //SERVER ANSWERS
 #define ANS_LOGIN "RLI"
 #define ANS_LOGOUT "RLO"
 #define ANS_UNREGISTER "RUR"
 #define ANS_PUBLISH "RPB"
+#define ANS_REMOVE_FILE "RRM"
 
 void connectUDP(connection_info *cInfo);
 
@@ -68,5 +78,7 @@ int client_logout(connection_info cInfo, user_info uInfo);
 int client_unregister(connection_info cInfo, user_info uInfo);
 
 int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo);
+
+int client_remove_file(connection_info cInfo, user_info uInfo, char* filename);
 
 #endif

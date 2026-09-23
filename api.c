@@ -130,25 +130,49 @@ int client_unregister(connection_info cInfo, user_info uInfo){
 }
 
 int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo){
-        char buf[MAX_INSTRUCTION_LENGTH];
-        snprintf(buf, sizeof(buf), "%s %s %s %s %zu %s\n", REQ_PUBLISH, uInfo.UID, uInfo.password, fInfo.filename, fInfo.filesize, fInfo.label);
+    char buf[MAX_INSTRUCTION_LENGTH];
+    snprintf(buf, sizeof(buf), "%s %s %s %s %zu %s\n", REQ_PUBLISH, uInfo.UID, uInfo.password, fInfo.filename, fInfo.filesize, fInfo.label);
 
-        sendUDP(cInfo.sockfd, buf, strlen(buf), 0, res);
+    sendUDP(cInfo.sockfd, buf, strlen(buf), 0, res);
 
-        memset(buf, 0, sizeof(buf));
+    memset(buf, 0, sizeof(buf));
 
-        if (recvUDP(cInfo.sockfd, buf, sizeof(buf), 0, &addr) == RECV_ERROR) return DS_TIMEOUT;
-    
-        char* token = strtok(buf, " \n");
-        if (token == NULL || strcmp(token, ANS_PUBLISH)) return PUBLISH_ERROR;
+    if (recvUDP(cInfo.sockfd, buf, sizeof(buf), 0, &addr) == RECV_ERROR) return DS_TIMEOUT;
 
-        char* status = strtok(NULL, " \n");
-        if (status == NULL) return PUBLISH_ERROR;
+    char* token = strtok(buf, " \n");
+    if (token == NULL || strcmp(token, ANS_PUBLISH)) return PUBLISH_ERROR;
 
-        if (strcmp(status, "OK") == 0) return PUBLISH_SUCCESS;
-        if (strcmp(status, "NLG") == 0) return PUBLISH_NOT_SIGNED_IN;
-        if (strcmp(status, "UNR") == 0) return PUBLISH_NOT_REGISTERED;
-        if (strcmp(status, "WRP") == 0) return PUBLISH_WRONG_PASSWORD;
-        if (strcmp(status, "NOK") == 0) return PUBLISH_FAILED;
-        return PUBLISH_ERROR;
-    }
+    char* status = strtok(NULL, " \n");
+    if (status == NULL) return PUBLISH_ERROR;
+
+    if (strcmp(status, "OK") == 0) return PUBLISH_SUCCESS;
+    if (strcmp(status, "NLG") == 0) return PUBLISH_NOT_SIGNED_IN;
+    if (strcmp(status, "UNR") == 0) return PUBLISH_NOT_REGISTERED;
+    if (strcmp(status, "WRP") == 0) return PUBLISH_WRONG_PASSWORD;
+    if (strcmp(status, "NOK") == 0) return PUBLISH_FAILED;
+    return PUBLISH_ERROR;
+}
+
+int client_remove_file(connection_info cInfo, user_info uInfo, char* filename){
+    char buf[MAX_INSTRUCTION_LENGTH];
+    snprintf(buf, sizeof(buf), "%s %s %s %s\n", REQ_REMOVE_FILE, uInfo.UID, uInfo.password, filename);
+
+    sendUDP(cInfo.sockfd, buf, strlen(buf), 0, res);
+
+    memset(buf, 0, sizeof(buf));
+
+    if (recvUDP(cInfo.sockfd, buf, sizeof(buf), 0, &addr) == RECV_ERROR) return DS_TIMEOUT;
+
+    char* token = strtok(buf, " \n");
+    if (token == NULL || strcmp(token, ANS_REMOVE_FILE)) return REMOVE_FILE_ERROR;
+
+    char* status = strtok(NULL, " \n");
+    if (status == NULL) return REMOVE_FILE_ERROR;
+
+    if (strcmp(status, "OK") == 0) return REMOVE_FILE_SUCCESS;
+    if (strcmp(status, "NLG") == 0) return REMOVE_FILE_NOT_SIGNED_IN;
+    if (strcmp(status, "UNR") == 0) return REMOVE_FILE_NOT_REGISTERED;
+    if (strcmp(status, "WRP") == 0) return REMOVE_FILE_WRONG_PASSWORD;
+    if (strcmp(status, "NOK") == 0) return REMOVE_FILE_FAILED;
+    return REMOVE_FILE_ERROR;
+}
