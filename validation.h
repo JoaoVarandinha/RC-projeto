@@ -34,6 +34,8 @@ bool is_valid_unregister(user_info uInfo);
 
 bool is_valid_publish(user_info uInfo, char* filename, char* label);
 
+bool is_valid_remove_file(user_info uInfo, char* filename);
+
 bool is_valid_versions(char* filename);
 
 #endif

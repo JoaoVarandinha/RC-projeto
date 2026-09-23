@@ -34,7 +34,8 @@ typedef enum {
     CMD_LOGIN,
     CMD_LOGOUT,
     CMD_UNREGISTER,
-    CMD_PUBLISH
+    CMD_PUBLISH,
+    CMD_REMOVE_FILE
 } command_kind;
 
 static int checks = 0;
@@ -98,6 +99,7 @@ static int call_command(command_kind kind, connection_info cInfo){
         case CMD_LOGOUT: return client_logout(cInfo, uInfo);
         case CMD_UNREGISTER: return client_unregister(cInfo, uInfo);
         case CMD_PUBLISH: return client_publish(cInfo, uInfo, fInfo);
+        case CMD_REMOVE_FILE: return client_remove_file(cInfo, uInfo, TEST_FILENAME);
     }
     return 0;
 }
@@ -182,6 +184,9 @@ static void test_request_format(){
     exchange(CMD_PUBLISH, "RPB OK\n", request, sizeof(request));
     check_str("PUB", request, "PUB " TEST_UID " " TEST_PASSWORD " "
                               TEST_FILENAME " 1048576 " TEST_LABEL "\n");
+
+    exchange(CMD_REMOVE_FILE, "RRM OK\n", request, sizeof(request));
+    check_str("REM", request, "REM " TEST_UID " " TEST_PASSWORD " " TEST_FILENAME "\n");
 }
 
 static void test_login_replies(){
@@ -235,6 +240,143 @@ static void test_malformed_replies(){
     check_int("NOKIA not NOK", exchange(CMD_PUBLISH, "RPB NOKIA\n", NULL, 0), PUBLISH_ERROR);
 }
 
+static void test_remove_file_replies(){
+    printf("client_remove_file replies\n");
+    check_int("RRM OK", exchange(CMD_REMOVE_FILE, "RRM OK\n", NULL, 0), REMOVE_FILE_SUCCESS);
+    check_int("RRM UNR", exchange(CMD_REMOVE_FILE, "RRM UNR\n", NULL, 0), REMOVE_FILE_NOT_REGISTERED);
+    check_int("RRM WRP", exchange(CMD_REMOVE_FILE, "RRM WRP\n", NULL, 0), REMOVE_FILE_WRONG_PASSWORD);
+    check_int("RRM ERR", exchange(CMD_REMOVE_FILE, "RRM ERR\n", NULL, 0), REMOVE_FILE_ERROR);
+    //NLG and NOK share a first letter, so these two must not collapse into one
+    check_int("RRM NLG", exchange(CMD_REMOVE_FILE, "RRM NLG\n", NULL, 0), REMOVE_FILE_NOT_SIGNED_IN);
+    check_int("RRM NOK", exchange(CMD_REMOVE_FILE, "RRM NOK\n", NULL, 0), REMOVE_FILE_FAILED);
+    check_int("wrong prefix", exchange(CMD_REMOVE_FILE, "RPB OK\n", NULL, 0), REMOVE_FILE_ERROR);
+    check_int("NOKIA not NOK", exchange(CMD_REMOVE_FILE, "RRM NOKIA\n", NULL, 0), REMOVE_FILE_ERROR);
+}
+
+//Binds and listens on an ephemeral loopback TCP port for the versions tests
+static int bind_mock_ds_tcp(char* portOut, size_t portOutLen){
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == -1){
+        printf("could not create mock TCP socket\n");
+        exit(1);
+    }
+
+    int reuse = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = 0;
+
+    if (bind(sockfd, (struct sockaddr*) &addr, sizeof(addr)) == -1 || listen(sockfd, 1) == -1){
+        printf("could not bind or listen on mock TCP socket\n");
+        exit(1);
+    }
+
+    socklen_t addrlen = sizeof(addr);
+    getsockname(sockfd, (struct sockaddr*) &addr, &addrlen);
+    snprintf(portOut, portOutLen, "%d", ntohs(addr.sin_port));
+    return sockfd;
+}
+
+//Runs one versions exchange. The mock DS closes the connection after replying,
+//which is what tells recvTCP the reply is complete. holdOpen makes it keep the
+//connection open without answering, so the client hits its receive timeout.
+static int exchange_tcp(const char* reply, char* requestOut, size_t requestOutLen,
+                        char** replyOut, int holdOpen){
+    char port[8];
+    int listenSocket = bind_mock_ds_tcp(port, sizeof(port));
+
+    int requestPipe[2];
+    if (pipe(requestPipe) == -1){
+        printf("could not create pipe\n");
+        exit(1);
+    }
+
+    pid_t pid = fork();
+    if (pid == -1){
+        printf("could not fork mock DS\n");
+        exit(1);
+    }
+
+    if (pid == 0){
+        close(requestPipe[0]);
+
+        int conn = accept(listenSocket, NULL, NULL);
+        if (conn == -1) _exit(1);
+
+        char request[MAX_INSTRUCTION_LENGTH];
+        ssize_t n = read(conn, request, sizeof(request) - 1);
+        if (n > 0 && write(requestPipe[1], request, n) != n) _exit(1);
+        close(requestPipe[1]);
+
+        if (reply != NULL) write(conn, reply, strlen(reply));
+        if (holdOpen) sleep(RECV_TIMEOUT + 2); //outlast the client's timeout
+        close(conn);
+        _exit(0);
+    }
+
+    close(requestPipe[1]);
+
+    connection_info cInfo;
+    cInfo.peerport = TEST_PEERPORT;
+    cInfo.dsip = "127.0.0.1";
+    cInfo.dsport = port;
+
+    int response = client_versions(cInfo, TEST_FILENAME, replyOut);
+
+    if (requestOut != NULL){
+        ssize_t n = read(requestPipe[0], requestOut, requestOutLen - 1);
+        requestOut[n < 0 ? 0 : n] = '\0';
+    }
+
+    close(requestPipe[0]);
+    waitpid(pid, NULL, 0);
+    close(listenSocket);
+    return response;
+}
+
+static void test_versions(){
+    printf("client_versions\n");
+    char request[MAX_INSTRUCTION_LENGTH];
+    char* reply = NULL;
+
+    exchange_tcp("RVR NOK\n", request, sizeof(request), &reply, 0);
+    check_str("VRS", request, "VRS " TEST_FILENAME "\n");
+    free(reply);
+
+    check_int("RVR NOK", exchange_tcp("RVR NOK\n", NULL, 0, &reply, 0), VERSIONS_NO_PEERS);
+    //Nothing is handed over when there are no peers to list
+    check_int("NOK frees the buffer", reply == NULL, 1);
+
+    check_int("RVR ERR", exchange_tcp("RVR ERR\n", NULL, 0, &reply, 0), VERSIONS_ERROR);
+    check_int("wrong prefix", exchange_tcp("RPB OK\n", NULL, 0, &reply, 0), VERSIONS_ERROR);
+    check_int("missing status", exchange_tcp("RVR\n", NULL, 0, &reply, 0), VERSIONS_ERROR);
+
+    //A successful reply must come back whole, entries included
+    const char* peers = "RVR OK 123456 1024 1080p 2026-09-23 AVL 654321 2048 480p 2026-09-22 NAV\n";
+    check_int("RVR OK", exchange_tcp(peers, NULL, 0, &reply, 0), VERSIONS_SUCCESS);
+    check_int("OK hands over the buffer", reply != NULL, 1);
+    if (reply != NULL) check_str("reply is intact", reply, peers);
+    free(reply);
+    reply = NULL;
+
+    //A reply larger than the initial buffer must force it to grow
+    size_t bigLen = INITIAL_TCP_BUFFER_SIZE * 3;
+    char* big = malloc(bigLen + 1);
+    memset(big, 'x', bigLen);
+    memcpy(big, "RVR OK ", 7);
+    big[bigLen - 1] = '\n';
+    big[bigLen] = '\0';
+
+    check_int("oversized reply", exchange_tcp(big, NULL, 0, &reply, 0), VERSIONS_SUCCESS);
+    check_int("grew to hold it all", reply != NULL && strlen(reply) == bigLen, 1);
+    free(big);
+    free(reply);
+}
+
 //Silence from the DS must be reported as a timeout, not as a bad reply
 static void test_timeout(){
     printf("timeout (waits %d seconds)\n", RECV_TIMEOUT);
@@ -247,6 +389,8 @@ int main(){
     test_logout_replies();
     test_unregister_replies();
     test_publish_replies();
+    test_remove_file_replies();
+    test_versions();
     test_malformed_replies();
     test_timeout();
 

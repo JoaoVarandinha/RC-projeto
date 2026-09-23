@@ -163,6 +163,18 @@ bool is_valid_publish(user_info uInfo, char* filename, char* label){
     return true;
 }
 
+bool is_valid_remove_file(user_info uInfo, char* filename){
+    if (!isLoggedIn(uInfo)){
+        printf(NOT_SIGNED_IN_MESSAGE);
+        return false;
+    }
+    if (!is_valid_filename(filename)){
+        printf(INVALID_FILENAME_MESSAGE);
+        return false;
+    }
+    return true;
+}
+
 bool is_valid_versions(char* filename){
     if (!is_valid_filename(filename)){
         printf(INVALID_FILENAME_MESSAGE);

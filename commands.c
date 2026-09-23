@@ -143,14 +143,10 @@ void publish(connection_info cInfo, char* filename, char* label){
 }
 
 void remove_file(connection_info cInfo, char* filename){
-    if (!is_valid_filename(filename)){
-        printf(INVALID_FILENAME_MESSAGE);
-        return;
-    }
+    if (!is_valid_remove_file(session, filename)) return;
 
     int response = client_remove_file(cInfo, session, filename);
     switch(response){
-        case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
         case(REMOVE_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         case(REMOVE_FILE_SUCCESS):printf(REMOVE_FILE_SUCCESS_MESSAGE); return;
         case(REMOVE_FILE_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
