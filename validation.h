@@ -20,8 +20,11 @@ bool is_valid_filename(char* filename);
 
 bool is_valid_label(char* label);
 
+bool is_valid_Fsize(char* Fsize);
+
+bool is_valid_version_reply(char* UID, char* Fsize, char* label, char* pubTime, char* availability);
+
 //COMMAND INPUT VALIDATION
-//These report the failure to the user and return false
 
 bool is_valid_login(user_info uInfo, char* UID, char* password);
 
@@ -30,5 +33,7 @@ bool is_valid_logout(user_info uInfo);
 bool is_valid_unregister(user_info uInfo);
 
 bool is_valid_publish(user_info uInfo, char* filename, char* label);
+
+bool is_valid_versions(char* filename);
 
 #endif

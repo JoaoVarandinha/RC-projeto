@@ -6,12 +6,30 @@
 #include <netdb.h>
 #include <netinet/in.h>
 
+#define UDP_CONNECT_ERROR -1
+#define SEND_UDP_ERROR -1
+
 #define RECV_TIMEOUT 5
-#define RECV_ERROR -1
+#define RECV_TIMEOUT_ERROR -1
+#define RECV_UDP_ERROR -2
+#define SEND_TCP_ERROR -1
+#define RECV_TCP_ERROR -2
 
 //Returned by any client_* call when the DS did not reply in time.
 //Shared across all commands, so it must not collide with their status codes.
 #define DS_TIMEOUT -2
+
+//Returned by any client_* call when the request never left the machine.
+//sendUDP already told the user, so callers should stay silent about it.
+#define REQUEST_NOT_SENT -3
+
+//Returned by any client_* call when the request went out but the reply could
+//not be read. recvUDP already told the user, so callers stay silent about it.
+#define REPLY_NOT_RECEIVED -4
+
+//Returned by connectTCP when the connection could not be established
+#define TCP_CONNECT_ERROR -1
+
 
 //LOGIN CODES
 #define LOGIN_ERROR -1
@@ -49,12 +67,21 @@
 #define REMOVE_FILE_WRONG_PASSWORD 3
 #define REMOVE_FILE_FAILED 4
 
+//VERSIONS CODES
+#define VERSIONS_ERROR -1
+#define VERSIONS_SUCCESS 0
+#define VERSIONS_NO_PEERS 1
+
+//Starting size of the RVR buffer
+#define INITIAL_TCP_BUFFER_SIZE 8192
+
 //CLIENT REQUESTS
 #define REQ_LOGIN "LIN"
 #define REQ_LOGOUT "LOU"
 #define REQ_UNREGISTER "UNR"
 #define REQ_PUBLISH "PUB"
 #define REQ_REMOVE_FILE "REM"
+#define REQ_VERSIONS "VRS"
 
 //SERVER ANSWERS
 #define ANS_LOGIN "RLI"
@@ -62,12 +89,21 @@
 #define ANS_UNREGISTER "RUR"
 #define ANS_PUBLISH "RPB"
 #define ANS_REMOVE_FILE "RRM"
+#define ANS_VERSIONS "RVR"
 
-void connectUDP(connection_info *cInfo);
+//Availability field of an RVR entry
+#define AVAILABLE "AVL"
+#define NOT_AVAILABLE "NAV"
 
-void disconnectUDP();
+int connectUDP(connection_info *cInfo);
 
-void sendUDP(int sockfd, const void* buf, size_t n, int flags, struct addrinfo* res);
+void disconnectUDP(int sockfd);
+
+int connectTCP(connection_info cInfo);
+
+void disconnectTCP(int sockfd);
+
+int sendUDP(int sockfd, const void* buf, size_t n, int flags, struct addrinfo* res);
 
 int recvUDP(int sockfd, void* buf, size_t n, int flags, struct sockaddr_in* addr);
 
@@ -80,5 +116,7 @@ int client_unregister(connection_info cInfo, user_info uInfo);
 int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo);
 
 int client_remove_file(connection_info cInfo, user_info uInfo, char* filename);
+
+int client_versions(connection_info cInfo, char* filename, char** reply);
 
 #endif

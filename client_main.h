@@ -8,6 +8,8 @@
 #define OUTSIDE_DSIP "193.136.138.142"
 #define DEFAULT_DSPORT "59000"
 
+#define MAX_FSIZE 10000000
+
 struct {
     char* peerport;
     char* dsip;

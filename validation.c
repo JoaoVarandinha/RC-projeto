@@ -1,5 +1,6 @@
 #include "validation.h"
 #include "messages.h"
+#include "api.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,3 +162,38 @@ bool is_valid_publish(user_info uInfo, char* filename, char* label){
     }
     return true;
 }
+
+bool is_valid_versions(char* filename){
+    if (!is_valid_filename(filename)){
+        printf(INVALID_FILENAME_MESSAGE);
+        return false;
+    }
+    return true;
+}
+
+bool is_valid_Fsize(char* Fsize){
+    if (Fsize == NULL) return false;
+
+    size_t len = strlen(Fsize);
+    if (len < 1 || len > 8) return false;
+
+    for (int i = 0; i < len; i++){
+        if (!isdigit(Fsize[i])) return false;
+    }
+    return atol(Fsize) <= MAX_FSIZE;
+}
+
+bool is_valid_version_reply(char* UID, char* Fsize, char* label, char* pubTime, char* availability){
+    if (!is_valid_UID(UID)) return false;
+    if (!is_valid_Fsize(Fsize)) return false;
+    if (!is_valid_label(label)) return false;
+
+    //The spec names publication_time but never states its format, so anything
+    //stricter than "the field is present" would be guessing
+    if (pubTime == NULL || pubTime[0] == '\0') return false;
+
+    if (availability == NULL) return false;
+    return strcmp(availability, AVAILABLE) == 0 || strcmp(availability, NOT_AVAILABLE) == 0;
+}
+
+

@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #define EXIT_CODE -1
-#define MAX_FSIZE 10000000
 
 int process_command(connection_info cInfo, char* command);
 
@@ -19,7 +18,8 @@ void unregister(connection_info cInfo);
 
 void publish(connection_info cInfo, char* filename, char* label);
 
-void remove_file();
+void remove_file(connection_info cInfo, char* filename);
 
+void versions(connection_info cInfo, char* filename);
 
 #endif

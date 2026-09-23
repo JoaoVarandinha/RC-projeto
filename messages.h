@@ -9,6 +9,17 @@
 #define DS_UNEXPECTED_REPLY_MESSAGE "Unexpected reply received from the DS. Request not completed.\n"
 #define DS_TIMEOUT_MESSAGE "No reply received from the DS. Request not completed.\n"
 
+//CONNECTION MESSAGES
+#define SOCKET_ERROR_MESSAGE "Could not create socket.\n"
+#define SET_TIMEOUT_ERROR_MESSAGE "Could not set the socket timeout.\n"
+#define UDP_CONNECT_ERROR_MESSAGE "UDP connection unsuccessful. \n"
+#define TCP_CONNECT_ERROR_MESSAGE "TCP connection unsuccessful. \n"
+#define SEND_UDP_ERROR_MESSAGE "Unsuccessful UDP send. \n"
+#define RECV_UDP_ERROR_MESSAGE "Unsuccessful UDP receive. \n"
+#define SEND_TCP_ERROR_MESSAGE "Unsuccessful TCP send. \n"
+#define RECV_TCP_ERROR_MESSAGE "Unsuccessful TCP receive. \n"
+#define ALLOCATION_ERROR_MESSAGE "Could not allocate memory for the reply. \n"
+
 //LOGIN MESSAGES
 #define LOGIN_SUCCESS_MESSAGE "Successful login.\n"
 #define LOGIN_WRONG_PASSWORD_MESSAGE "Incorrect login attempt.\n"
@@ -28,6 +39,9 @@
 //REMOVE MESSAGES
 #define REMOVE_FILE_SUCCESS_MESSAGE "Successful file removal.\n"
 #define REMOVE_FILE_FAILED_MESSAGE "Resource not found.\n"
+
+//VERSIONS MESSAGES
+#define VERSIONS_NO_PEERS_MESSAGE "No peer is available for this file.\n"
 
 //SETUP (CLI ARGUMENT) MESSAGES
 #define PEERPORT_MISSING_MESSAGE "Peerport is necessary.\n"
