@@ -20,6 +20,8 @@ void publish(connection_info cInfo, char* filename, char* label);
 
 void remove_file(connection_info cInfo, char* filename);
 
+void list_file(connection_info cInfo);
+
 void versions(connection_info cInfo, char* filename);
 
 #endif

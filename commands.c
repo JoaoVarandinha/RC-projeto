@@ -43,6 +43,10 @@ int process_command(connection_info cInfo, char* command){
         remove_file(cInfo, filename);
     }
 
+    else if (strcmp(cmdToken, "list") == 0){
+        list_file(cInfo);
+    }
+
     else if (strcmp(cmdToken, "versions") == 0){
         char* filename = strtok(NULL, " \n");
         versions(cInfo, filename);
@@ -152,13 +156,33 @@ void remove_file(connection_info cInfo, char* filename){
         case(REMOVE_FILE_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(REMOVE_FILE_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
         case(REMOVE_FILE_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
-        case(REMOVE_FILE_FAILED):printf(REMOVE_FILE_FAILED_MESSAGE); return;
+        case(REMOVE_FILE_FAILED):printf(REMOVE_FILE_NO_RESOURCES_MESSAGE); return;
         default: return; //api.c already reported the network failures
     }
 
     clear_session();
 }
 
+void list_file(connection_info cInfo){
+    char* reply;
+    int response = client_list_file(cInfo, &reply);
+    switch(response){
+        case(LIST_FILE_SUCCESS): break;
+        case(LIST_FILE_NO_RESOURCES):printf(LIST_FILE_NO_RESOURCES_MESSAGE); return;
+        case(LIST_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        default: return; //api.c already reported the network failures
+    }
+
+    char* token = strtok(reply, " \n"); //RLS
+    token = strtok(NULL, " \n");        //OK
+
+    while((token = strtok(NULL, " \n")) != NULL){
+
+        printf("\n%s\n", token);
+    }
+
+    free(reply);
+}
 
 void versions(connection_info cInfo, char* filename){
     if (!is_valid_versions(filename)) return;

@@ -255,6 +255,42 @@ int client_remove_file(connection_info cInfo, user_info uInfo, char* filename){
     return REMOVE_FILE_ERROR;
 }
 
+int client_list_file_status(const char* reply){
+    char prefix[8], status[8];
+    if (sscanf(reply, "%7s %7s", prefix, status) != 2) return LIST_FILE_ERROR;
+    if (strcmp(prefix, ANS_LIST_FILE)) return LIST_FILE_ERROR;
+
+    if (strcmp(status, "OK") == 0) return LIST_FILE_SUCCESS;
+    if (strcmp(status, "NOK") == 0) return LIST_FILE_NO_RESOURCES;
+    return LIST_FILE_ERROR;
+}
+
+int client_list_file(connection_info cInfo, char** reply){
+    *reply = NULL;
+
+    char request[MAX_INSTRUCTION_LENGTH];
+    snprintf(request, sizeof(request), "%s\n", REQ_LIST_FILE);
+
+    if (sendUDP(cInfo.sockfd, request, strlen(request), 0, res) == SEND_UDP_ERROR) return REQUEST_NOT_SENT;
+    
+    char* buf = malloc(MAX_LIST_FILE_REPLY_LENGTH);
+    if (buf == NULL) return LIST_FILE_ERROR;
+
+    memset(buf, 0, MAX_LIST_FILE_REPLY_LENGTH);
+
+    int received = recvUDP(cInfo.sockfd, buf, MAX_LIST_FILE_REPLY_LENGTH, 0, &addr);
+    if (received == RECV_TIMEOUT_ERROR) {free(buf); return DS_TIMEOUT;}
+    if (received == RECV_UDP_ERROR) {free(buf); return REPLY_NOT_RECEIVED;}
+
+    int status = client_list_file_status(buf);
+
+    if (status == LIST_FILE_SUCCESS) *reply = buf;
+
+    else free(buf);
+
+    return status;
+}
+
 static int sendTCP(int fd, const char* buf, size_t n){
     size_t sent = 0;
     while (sent < n){

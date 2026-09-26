@@ -36,9 +36,12 @@
 #define PUBLISH_SUCCESS_MESSAGE "Successful publication.\n"
 #define PUBLISH_FAILED_MESSAGE "Unsuccessful publication.\n"
 
-//REMOVE MESSAGES
+//REMOVE FILE MESSAGES
 #define REMOVE_FILE_SUCCESS_MESSAGE "Successful file removal.\n"
-#define REMOVE_FILE_FAILED_MESSAGE "Resource not found.\n"
+#define REMOVE_FILE_NO_RESOURCES_MESSAGE "Resource not found.\n"
+
+//LIST FILE MESSAGES
+#define LIST_FILE_NO_RESOURCES_MESSAGE "No published files found\n"
 
 //VERSIONS MESSAGES
 #define VERSIONS_NO_PEERS_MESSAGE "No peer is available for this file.\n"

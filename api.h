@@ -67,6 +67,11 @@
 #define REMOVE_FILE_WRONG_PASSWORD 3
 #define REMOVE_FILE_FAILED 4
 
+//LIST CODES
+#define LIST_FILE_ERROR -1
+#define LIST_FILE_SUCCESS 0
+#define LIST_FILE_NO_RESOURCES 1
+
 //VERSIONS CODES
 #define VERSIONS_ERROR -1
 #define VERSIONS_SUCCESS 0
@@ -81,6 +86,7 @@
 #define REQ_UNREGISTER "UNR"
 #define REQ_PUBLISH "PUB"
 #define REQ_REMOVE_FILE "REM"
+#define REQ_LIST_FILE "LST"
 #define REQ_VERSIONS "VRS"
 
 //SERVER ANSWERS
@@ -89,11 +95,14 @@
 #define ANS_UNREGISTER "RUR"
 #define ANS_PUBLISH "RPB"
 #define ANS_REMOVE_FILE "RRM"
+#define ANS_LIST_FILE "RLS"
 #define ANS_VERSIONS "RVR"
 
 //Availability field of an RVR entry
 #define AVAILABLE "AVL"
 #define NOT_AVAILABLE "NAV"
+
+#define MAX_LIST_FILE_REPLY_LENGTH (3 + 1 + 3 + 50 * (1 + 24) + 1 + 1)
 
 int connectUDP(connection_info *cInfo);
 
@@ -116,6 +125,8 @@ int client_unregister(connection_info cInfo, user_info uInfo);
 int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo);
 
 int client_remove_file(connection_info cInfo, user_info uInfo, char* filename);
+
+int client_list_file(connection_info cInfo, char** reply);
 
 int client_versions(connection_info cInfo, char* filename, char** reply);
 
