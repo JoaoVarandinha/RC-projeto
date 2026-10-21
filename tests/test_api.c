@@ -1,4 +1,4 @@
-// Tests for the client_* protocol functions in api.c.
+// Tests for the client_* protocol functions in ds_client.c.
 //
 // Each case binds a real UDP socket on loopback to act as the DS, points a
 // connection_info at it, and calls the real client_* function. That exercises
@@ -9,9 +9,10 @@
 // scheduled. No sleeps or retries needed.
 //
 // Build and run from the project root:
-//   gcc -Wall -o tests/test_api tests/test_api.c api.c && ./tests/test_api
+//   gcc -Wall -o tests/test_api tests/test_api.c ds_client.c net.c && ./tests/test_api
 
-#include "../api.h"
+#include "../ds_client.h"
+#include "../net.h"
 #include "../parser.h"
 
 #include <stdio.h>

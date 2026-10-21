@@ -4,9 +4,9 @@ CFLAGS = -Wall -g
 TARGET = user
 OBJDIR = objects
 
-SOURCES = client_main.c api.c parser.c commands.c validation.c
+SOURCES = client_main.c net.c ds_client.c parser.c commands.c validation.c
 OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.c=.o))
-HEADERS = api.h client_main.h commands.h messages.h parser.h validation.h
+HEADERS = net.h ds_client.h protocol.h client_main.h commands.h messages.h parser.h validation.h
 
 TESTS = tests/test_api tests/test_validation
 
@@ -25,8 +25,8 @@ $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
 # The test binaries link only the modules they exercise, not the whole program
-tests/test_api: tests/test_api.c api.c $(HEADERS)
-	$(CC) $(CFLAGS) -o $@ tests/test_api.c api.c
+tests/test_api: tests/test_api.c ds_client.c net.c $(HEADERS)
+	$(CC) $(CFLAGS) -o $@ tests/test_api.c ds_client.c net.c
 
 tests/test_validation: tests/test_validation.c validation.c $(HEADERS)
 	$(CC) $(CFLAGS) -o $@ tests/test_validation.c validation.c

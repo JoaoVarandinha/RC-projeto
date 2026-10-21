@@ -2,7 +2,7 @@
 #define COMMANDS_H
 
 #include "client_main.h"
-#include "api.h"
+#include "ds_client.h"
 #include "parser.h"
 #include <stdbool.h>
 

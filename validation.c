@@ -1,6 +1,6 @@
 #include "validation.h"
 #include "messages.h"
-#include "api.h"
+#include "protocol.h"
 
 #include <stdio.h>
 #include <stdlib.h>

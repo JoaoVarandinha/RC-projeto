@@ -1,6 +1,7 @@
 #include "commands.h"
 #include "messages.h"
 #include "validation.h"
+#include "protocol.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +77,7 @@ void login(connection_info cInfo, char* UID, char* password){
         case(LOGIN_SUCCESS):printf(LOGIN_SUCCESS_MESSAGE); break;
         case(LOGIN_NEW_USER):printf(LOGIN_NEW_USER_MESSAGE); break;
         case(LOGIN_WRONG_PASSWORD):printf(LOGIN_WRONG_PASSWORD_MESSAGE); return;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
     session = uInfo;
 }
@@ -91,7 +92,7 @@ void logout(connection_info cInfo){
         case(LOGOUT_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(LOGOUT_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
         case(LOGOUT_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE);break;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
 
     clear_session();
@@ -107,7 +108,7 @@ void unregister(connection_info cInfo){
         case(UNREGISTER_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(UNREGISTER_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
         case(UNREGISTER_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
     clear_session();
 }
@@ -139,7 +140,7 @@ void publish(connection_info cInfo, char* filename, char* label){
         case(PUBLISH_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
         case(PUBLISH_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
         case(PUBLISH_FAILED):printf(PUBLISH_FAILED_MESSAGE); return;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
 
     clear_session();
@@ -156,7 +157,7 @@ void remove_file(connection_info cInfo, char* filename){
         case(REMOVE_FILE_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
         case(REMOVE_FILE_WRONG_PASSWORD):printf(WRONG_PASSWORD_MESSAGE); break;
         case(REMOVE_FILE_FAILED):printf(REMOVE_FILE_NO_RESOURCES_MESSAGE); return;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
 
     clear_session();
@@ -169,7 +170,7 @@ void list_file(connection_info cInfo){
         case(LIST_FILE_SUCCESS): break;
         case(LIST_FILE_NO_RESOURCES):printf(LIST_FILE_NO_RESOURCES_MESSAGE); return;
         case(LIST_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
 
     char* token = strtok(reply, " \n"); //RLS
@@ -193,7 +194,7 @@ void versions(connection_info cInfo, char* filename){
         case(VERSIONS_SUCCESS): break;
         case(VERSIONS_NO_PEERS): printf(VERSIONS_NO_PEERS_MESSAGE); return;
         case(VERSIONS_ERROR): printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
-        default: return; //api.c already reported the network failures
+        default: return; //net.c already reported the network failures
     }
 
     char *originalReply = reply;
