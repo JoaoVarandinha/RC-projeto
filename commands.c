@@ -133,7 +133,6 @@ void publish(connection_info cInfo, char* filename, char* label){
 
     int response = client_publish(cInfo, session, fInfo);
     switch(response){
-        case(DS_TIMEOUT):printf(DS_TIMEOUT_MESSAGE); return;
         case(PUBLISH_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         case(PUBLISH_SUCCESS):printf(PUBLISH_SUCCESS_MESSAGE); return;
         case(PUBLISH_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;

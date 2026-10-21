@@ -8,6 +8,7 @@
 #define ALREADY_SIGNED_IN_MESSAGE "A user is logged in. Execute logout first.\n"
 #define DS_UNEXPECTED_REPLY_MESSAGE "Unexpected reply received from the DS. Request not completed.\n"
 #define DS_TIMEOUT_MESSAGE "No reply received from the DS. Request not completed.\n"
+#define DS_TIMEOUT_RETRY_MESSAGE "No reply received from the DS. Retrying...\n"
 
 //CONNECTION MESSAGES
 #define SOCKET_ERROR_MESSAGE "Could not create socket.\n"
@@ -38,7 +39,7 @@
 
 //REMOVE FILE MESSAGES
 #define REMOVE_FILE_SUCCESS_MESSAGE "Successful file removal.\n"
-#define REMOVE_FILE_NO_RESOURCES_MESSAGE "Resource not found.\n"
+#define REMOVE_FILE_NO_RESOURCES_MESSAGE "Resource not previously published by user.\n"
 
 //LIST FILE MESSAGES
 #define LIST_FILE_NO_RESOURCES_MESSAGE "No published files found\n"

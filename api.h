@@ -6,6 +6,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 
+#define RECV_UDP_TRIES 3
+
 #define UDP_CONNECT_ERROR -1
 #define SEND_UDP_ERROR -1
 

@@ -117,16 +117,20 @@ int sendUDP(int fd, const void* buf, size_t n, int flags, struct addrinfo* res){
 
 int recvUDP(int fd, void* buf, size_t n, int flags, struct sockaddr_in* addr){
     socklen_t addrlen = sizeof(struct sockaddr_in);
-    ssize_t s = recvfrom(fd, buf, n, flags, (struct sockaddr*) addr, &addrlen);
-    if (s == -1){
-        if (errno == EAGAIN || errno == EWOULDBLOCK){
-            printf(DS_TIMEOUT_MESSAGE);
-            return RECV_TIMEOUT_ERROR;
+    for (int i = RECV_UDP_TRIES; i > 0; i--){
+        ssize_t s = recvfrom(fd, buf, n, flags, (struct sockaddr*) addr, &addrlen);
+        if (s == -1){
+            if (errno == EAGAIN || errno == EWOULDBLOCK){
+                printf(DS_TIMEOUT_RETRY_MESSAGE);
+                continue;
+            }
+            printf(RECV_UDP_ERROR_MESSAGE);
+            return RECV_UDP_ERROR;
         }
-        printf(RECV_UDP_ERROR_MESSAGE);
-        return RECV_UDP_ERROR;
+        return s;
     }
-    return s;
+    printf(DS_TIMEOUT_MESSAGE);
+    return RECV_TIMEOUT_ERROR;
 }
 
 int client_login(connection_info cInfo, user_info uInfo){
@@ -304,7 +308,9 @@ static int sendTCP(int fd, const char* buf, size_t n){
     return sent;
 }
 
-//Reads until the DS closes connection, grows buffer to accomodate longer messages
+//Reads a whole reply, growing the buffer to accomodate longer messages. The
+//spec guarantees every message ends with \n but never says the DS closes the
+//connection, so \n is the terminator and EOF only a fallback.
 int recvTCP(int fd, char** reply){
     size_t capacity = INITIAL_TCP_BUFFER_SIZE;
     size_t total = 0;
@@ -328,7 +334,7 @@ int recvTCP(int fd, char** reply){
         }
 
         ssize_t bytesRead = read(fd, buf + total, capacity - 1 - total);
-        if (bytesRead == 0) break; //DS closed the connection: the reply is complete
+        if (bytesRead == 0) break; //DS closed before sending the terminator
         if (bytesRead== -1){
             free(buf);
             if (errno == EAGAIN || errno == EWOULDBLOCK){
@@ -339,6 +345,10 @@ int recvTCP(int fd, char** reply){
             return RECV_TCP_ERROR;
         }
         total += bytesRead;
+
+        //A partial read just loops and waits for the rest, so the \n is only
+        //seen once the whole message has arrived
+        if (buf[total - 1] == '\n') break;
     }
 
     buf[total] = '\0';
