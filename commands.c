@@ -73,7 +73,9 @@ void login(connection_info cInfo, char* UID, char* password){
 
     int response = client_login(cInfo, uInfo);
     switch(response){
-        case(LOGIN_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(LOGIN_ERROR):printf(LOGIN_ERROR_MESSAGE); return;
         case(LOGIN_SUCCESS):printf(LOGIN_SUCCESS_MESSAGE); break;
         case(LOGIN_NEW_USER):printf(LOGIN_NEW_USER_MESSAGE); break;
         case(LOGIN_WRONG_PASSWORD):printf(LOGIN_WRONG_PASSWORD_MESSAGE); return;
@@ -87,7 +89,9 @@ void logout(connection_info cInfo){
 
     int response = client_logout(cInfo, session);
     switch(response){
-        case(LOGOUT_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(LOGOUT_ERROR):printf(LOGOUT_ERROR_MESSAGE); return;
         case(LOGOUT_SUCCESS):printf(LOGOUT_SUCCESS_MESSAGE); break;
         case(LOGOUT_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(LOGOUT_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
@@ -103,7 +107,9 @@ void unregister(connection_info cInfo){
 
     int response = client_unregister(cInfo, session);
     switch(response){
-        case(UNREGISTER_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(UNREGISTER_ERROR):printf(UNREGISTER_ERROR_MESSAGE); return;
         case(UNREGISTER_SUCCESS):printf(UNREGISTER_SUCCESS_MESSAGE); break;
         case(UNREGISTER_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(UNREGISTER_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
@@ -134,7 +140,9 @@ void publish(connection_info cInfo, char* filename, char* label){
 
     int response = client_publish(cInfo, session, fInfo);
     switch(response){
-        case(PUBLISH_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PUBLISH_ERROR):printf(PUBLISH_ERROR_MESSAGE); return;
         case(PUBLISH_SUCCESS):printf(PUBLISH_SUCCESS_MESSAGE); return;
         case(PUBLISH_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(PUBLISH_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
@@ -151,7 +159,9 @@ void remove_file(connection_info cInfo, char* filename){
 
     int response = client_remove_file(cInfo, session, filename);
     switch(response){
-        case(REMOVE_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(REMOVE_FILE_ERROR):printf(REMOVE_FILE_ERROR_MESSAGE); return;
         case(REMOVE_FILE_SUCCESS):printf(REMOVE_FILE_SUCCESS_MESSAGE); return;
         case(REMOVE_FILE_NOT_SIGNED_IN):printf(NOT_SIGNED_IN_MESSAGE); break;
         case(REMOVE_FILE_NOT_REGISTERED):printf(NOT_REGISTERED_MESSAGE); break;
@@ -167,9 +177,11 @@ void list_file(connection_info cInfo){
     char* reply;
     int response = client_list_file(cInfo, &reply);
     switch(response){
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(LIST_FILE_ERROR):printf(LIST_FILE_ERROR_MESSAGE); return;
         case(LIST_FILE_SUCCESS): break;
         case(LIST_FILE_NO_RESOURCES):printf(LIST_FILE_NO_RESOURCES_MESSAGE); return;
-        case(LIST_FILE_ERROR):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         default: return; //net.c already reported the network failures
     }
 
@@ -191,9 +203,11 @@ void versions(connection_info cInfo, char* filename){
     int response = client_versions(cInfo, filename, &reply);
 
     switch(response){
+        case(PROTOCOL_ERROR):printf(DS_PROTOCOL_NOT_FOUND_MESSAGE); return;
+        case(UNEXPECTED_REPLY):printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
+        case(VERSIONS_ERROR): printf(VERSIONS_ERROR_MESSAGE); return;
         case(VERSIONS_SUCCESS): break;
         case(VERSIONS_NO_PEERS): printf(VERSIONS_NO_PEERS_MESSAGE); return;
-        case(VERSIONS_ERROR): printf(DS_UNEXPECTED_REPLY_MESSAGE); return;
         default: return; //net.c already reported the network failures
     }
 
@@ -211,7 +225,18 @@ void versions(connection_info cInfo, char* filename){
         if (!strcmp(availability,AVAILABLE)) availability = "Available";
         else availability = "Not Available";
 
-        printf("\nUser: %s\nFile Size: %s\nMetaData: %s\nPublication Time: %s\nAvailability: %s\n", UID, Fsize, label, pubTime, availability);
+        char readable_time[20];
+        int year, month, day, hour, minute, second;
+
+        // 2. Parse pubTime and format it into our separate buffer
+        if (pubTime != NULL && sscanf(pubTime, "%4d%2d%2d-%2d%2d%2d", &year, &month, &day, &hour, &minute, &second) == 6) {
+            snprintf(readable_time, sizeof(readable_time), "%02d-%02d-%04d %02d:%02d:%02d", 
+                    day, month, year, hour, minute, second);
+        } else {
+            snprintf(readable_time, sizeof(readable_time), "%s", "N/A");
+        }
+
+        printf("\nUser: %s\nFile Size: %s\nMetaData: %s\nPublication Time: %s\nAvailability: %s\n", UID, Fsize, label, readable_time, availability);
     }
     free(originalReply);
     return;

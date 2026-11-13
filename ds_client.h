@@ -16,6 +16,9 @@
 //not be read. net.c already told the user, so callers stay silent about it.
 #define REPLY_NOT_RECEIVED -4
 
+#define PROTOCOL_ERROR -5
+#define UNEXPECTED_REPLY -6
+
 //LOGIN CODES
 #define LOGIN_ERROR -1
 #define LOGIN_SUCCESS 0

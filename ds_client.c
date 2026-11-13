@@ -20,7 +20,10 @@ int client_login(connection_info cInfo, user_info uInfo){
     if (received == RECV_UDP_ERROR) return REPLY_NOT_RECEIVED;
 
     char* token = strtok(buf, " \n");
-    if (token == NULL || strcmp(token, ANS_LOGIN)) return LOGIN_ERROR;
+    if (token == NULL) return UNEXPECTED_REPLY;
+    if (strcmp(token, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+    if (strcmp(token, ANS_LOGIN)) return UNEXPECTED_REPLY;
+
 
     char* status = strtok(NULL, " \n");
     if (status == NULL) return LOGIN_ERROR;
@@ -28,7 +31,8 @@ int client_login(connection_info cInfo, user_info uInfo){
     if (strcmp(status, "OK") == 0) return LOGIN_SUCCESS;
     if (strcmp(status, "NOK") == 0) return LOGIN_WRONG_PASSWORD;
     if (strcmp(status, "REG") == 0) return LOGIN_NEW_USER;
-    return LOGIN_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return LOGIN_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_logout(connection_info cInfo, user_info uInfo){
@@ -44,7 +48,9 @@ int client_logout(connection_info cInfo, user_info uInfo){
     if (received == RECV_UDP_ERROR) return REPLY_NOT_RECEIVED;
 
     char* token = strtok(buf, " \n");
-    if (token == NULL || strcmp(token, ANS_LOGOUT)) return LOGOUT_ERROR;
+    if (token == NULL) return UNEXPECTED_REPLY;
+    if (strcmp(token, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+    if (strcmp(token, ANS_LOGOUT)) return UNEXPECTED_REPLY;
 
     char* status = strtok(NULL, " \n");
     if (status == NULL) return LOGOUT_ERROR;
@@ -53,7 +59,8 @@ int client_logout(connection_info cInfo, user_info uInfo){
     if (strcmp(status, "NLG") == 0) return LOGOUT_NOT_SIGNED_IN;
     if (strcmp(status, "UNR") == 0) return LOGOUT_NOT_REGISTERED;
     if (strcmp(status, "WRP") == 0) return LOGOUT_WRONG_PASSWORD;
-    return LOGOUT_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return LOGOUT_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_unregister(connection_info cInfo, user_info uInfo){
@@ -69,7 +76,9 @@ int client_unregister(connection_info cInfo, user_info uInfo){
     if (received == RECV_UDP_ERROR) return REPLY_NOT_RECEIVED;
 
     char* token = strtok(buf, " \n");
-    if (token == NULL || strcmp(token, ANS_UNREGISTER)) return UNREGISTER_ERROR;
+    if (token == NULL) return UNEXPECTED_REPLY;
+    if (strcmp(token, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+    if (strcmp(token, ANS_UNREGISTER)) return UNEXPECTED_REPLY;
 
     char* status = strtok(NULL, " \n");
     if (status == NULL) return UNREGISTER_ERROR;
@@ -78,7 +87,8 @@ int client_unregister(connection_info cInfo, user_info uInfo){
     if (strcmp(status, "NOK") == 0) return UNREGISTER_NOT_SIGNED_IN;
     if (strcmp(status, "UNR") == 0) return UNREGISTER_NOT_REGISTERED;
     if (strcmp(status, "WRP") == 0) return UNREGISTER_WRONG_PASSWORD;
-    return UNREGISTER_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return UNREGISTER_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo){
@@ -94,7 +104,9 @@ int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo){
     if (received == RECV_UDP_ERROR) return REPLY_NOT_RECEIVED;
 
     char* token = strtok(buf, " \n");
-    if (token == NULL || strcmp(token, ANS_PUBLISH)) return PUBLISH_ERROR;
+    if (token == NULL) return UNEXPECTED_REPLY;
+    if (strcmp(token, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+    if (strcmp(token, ANS_PUBLISH)) return UNEXPECTED_REPLY;
 
     char* status = strtok(NULL, " \n");
     if (status == NULL) return PUBLISH_ERROR;
@@ -104,7 +116,8 @@ int client_publish(connection_info cInfo, user_info uInfo, file_info fInfo){
     if (strcmp(status, "UNR") == 0) return PUBLISH_NOT_REGISTERED;
     if (strcmp(status, "WRP") == 0) return PUBLISH_WRONG_PASSWORD;
     if (strcmp(status, "NOK") == 0) return PUBLISH_FAILED;
-    return PUBLISH_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return PUBLISH_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_remove_file(connection_info cInfo, user_info uInfo, char* filename){
@@ -120,7 +133,9 @@ int client_remove_file(connection_info cInfo, user_info uInfo, char* filename){
     if (received == RECV_UDP_ERROR) return REPLY_NOT_RECEIVED;
 
     char* token = strtok(buf, " \n");
-    if (token == NULL || strcmp(token, ANS_REMOVE_FILE)) return REMOVE_FILE_ERROR;
+    if (token == NULL) return UNEXPECTED_REPLY;
+    if (strcmp(token, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+    if (strcmp(token, ANS_REMOVE_FILE)) return UNEXPECTED_REPLY;
 
     char* status = strtok(NULL, " \n");
     if (status == NULL) return REMOVE_FILE_ERROR;
@@ -130,19 +145,25 @@ int client_remove_file(connection_info cInfo, user_info uInfo, char* filename){
     if (strcmp(status, "UNR") == 0) return REMOVE_FILE_NOT_REGISTERED;
     if (strcmp(status, "WRP") == 0) return REMOVE_FILE_WRONG_PASSWORD;
     if (strcmp(status, "NOK") == 0) return REMOVE_FILE_FAILED;
-    return REMOVE_FILE_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return REMOVE_FILE_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 //sscanf reads without writing into reply, unlike strtok, so the file list stays
 //intact for the caller
 static int list_file_status(const char* reply){
-    char prefix[8], status[8];
-    if (sscanf(reply, "%7s %7s", prefix, status) != 2) return LIST_FILE_ERROR;
-    if (strcmp(prefix, ANS_LIST_FILE)) return LIST_FILE_ERROR;
+    char prefix[8] = {0}, status[8] = {0};
+
+    if (sscanf(reply, "%7s %7s", prefix, status) != 2) { //Can't be 0 because timeout would never let 0 data pass through
+        if (strcmp(prefix, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+        return UNEXPECTED_REPLY;
+    }
+    if (strcmp(prefix, ANS_LIST_FILE)) return UNEXPECTED_REPLY;
 
     if (strcmp(status, "OK") == 0) return LIST_FILE_SUCCESS;
     if (strcmp(status, "NOK") == 0) return LIST_FILE_NO_RESOURCES;
-    return LIST_FILE_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return LIST_FILE_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_list_file(connection_info cInfo, char** reply){
@@ -182,13 +203,18 @@ int client_list_file(connection_info cInfo, char** reply){
 //sscanf reads without writing into reply, unlike strtok, so the peer list stays
 //intact for the caller
 static int versions_status(const char* reply){
-    char prefix[8], status[8];
-    if (sscanf(reply, "%7s %7s", prefix, status) != 2) return VERSIONS_ERROR;
-    if (strcmp(prefix, ANS_VERSIONS)) return VERSIONS_ERROR;
+    char prefix[8] = {0}, status[8] = {0};
+
+    if (sscanf(reply, "%7s %7s", prefix, status) != 2) {
+        if (strcmp(prefix, ANS_ERROR) == 0) return PROTOCOL_ERROR;
+        return UNEXPECTED_REPLY;
+    }
+    if (strcmp(prefix, ANS_VERSIONS)) return UNEXPECTED_REPLY;
 
     if (strcmp(status, "OK") == 0) return VERSIONS_SUCCESS;
     if (strcmp(status, "NOK") == 0) return VERSIONS_NO_PEERS;
-    return VERSIONS_ERROR;
+    if (strcmp(status, ANS_ERROR) == 0) return VERSIONS_ERROR;
+    return UNEXPECTED_REPLY;
 }
 
 int client_versions(connection_info cInfo, char* filename, char** reply){

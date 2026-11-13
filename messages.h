@@ -9,6 +9,7 @@
 #define DS_UNEXPECTED_REPLY_MESSAGE "Unexpected reply received from the DS. Request not completed.\n"
 #define DS_TIMEOUT_MESSAGE "No reply received from the DS. Request not completed.\n"
 #define DS_TIMEOUT_RETRY_MESSAGE "No reply received from the DS. Retrying...\n"
+#define DS_PROTOCOL_NOT_FOUND_MESSAGE "No such protocol found in the DS\n"
 
 //CONNECTION MESSAGES
 #define SOCKET_ERROR_MESSAGE "Could not create socket.\n"
@@ -25,27 +26,34 @@
 #define LOGIN_SUCCESS_MESSAGE "Successful login.\n"
 #define LOGIN_WRONG_PASSWORD_MESSAGE "Incorrect login attempt.\n"
 #define LOGIN_NEW_USER_MESSAGE "New user registered.\n"
+#define LOGIN_ERROR_MESSAGE "Error in the login operation.\n"
 
 //LOGOUT MESSAGES
 #define LOGOUT_SUCCESS_MESSAGE "Successful logout.\n"
+#define LOGOUT_ERROR_MESSAGE "Error in the logout operation.\n"
 
 //UNREGISTER MESSAGES
 #define UNREGISTER_SUCCESS_MESSAGE "Successful unregister.\n"
 #define UNREGISTER_NOT_LOGGED_OUT_MESSAGE "Must logout first.\n"
+#define UNREGISTER_ERROR_MESSAGE "Error in the unregister operation.\n"
 
 //PUBLISH MESSAGES
 #define PUBLISH_SUCCESS_MESSAGE "Successful publication.\n"
 #define PUBLISH_FAILED_MESSAGE "Unsuccessful publication.\n"
+#define PUBLISH_ERROR_MESSAGE "Error in the publish operation.\n"
 
 //REMOVE FILE MESSAGES
 #define REMOVE_FILE_SUCCESS_MESSAGE "Successful file removal.\n"
 #define REMOVE_FILE_NO_RESOURCES_MESSAGE "Resource not previously published by user.\n"
+#define REMOVE_FILE_ERROR_MESSAGE "Error in the remove operation.\n"
 
 //LIST FILE MESSAGES
 #define LIST_FILE_NO_RESOURCES_MESSAGE "No published files found\n"
+#define LIST_FILE_ERROR_MESSAGE "Error in the list operation.\n"
 
 //VERSIONS MESSAGES
 #define VERSIONS_NO_PEERS_MESSAGE "No peer is available for this file.\n"
+#define VERSIONS_ERROR_MESSAGE "Error in the versions operation.\n"
 
 //SETUP (CLI ARGUMENT) MESSAGES
 #define PEERPORT_MISSING_MESSAGE "Peerport is necessary.\n"

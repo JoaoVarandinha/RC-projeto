@@ -20,6 +20,7 @@
 #define ANS_REMOVE_FILE "RRM"
 #define ANS_LIST_FILE "RLS"
 #define ANS_VERSIONS "RVR"
+#define ANS_ERROR "ERR"
 
 //Availability field of an RVR entry
 #define AVAILABLE "AVL"
